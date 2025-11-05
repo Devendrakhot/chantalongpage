@@ -1,1 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bhakti Ratna | Divine Chant Player</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #2A0001;
+      overflow-x: hidden;
+      background: linear-gradient(135deg, #f5f0e8 0%, #e8ddd0 100%);
+      min-height: 100vh;
+    }
+    .fade-out { opacity: 0; transform: scale(0.95); transition: all 0.7s ease; }
+    .fade-in { opacity: 1; transform: scale(1); transition: all 0.7s ease; }
+    .spin { animation: spin 8s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .lyrics-scroll {
+      height: 400px;
+      width: 100%;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #2A0001 #B2A8A0;
+    }
+    .lyrics-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+    .lyrics-scroll::-webkit-scrollbar-thumb {
+      background-color: #2A0001;
+      border-radius: 10px;
+    }
+    .icon-btn {
+      transition: all 0.3s ease;
+    }
+    .icon-btn:hover {
+      transform: scale(1.1);
+    }
+    .progress-container {
+      position: relative;
+      width: 100%;
+      height: 6px;
+      background: #d1c7b7;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 0%;
+      background: #2A0001;
+      border-radius: 10px;
+      transition: width 0.1s linear;
+    }
+    .progress-handle {
+      position: absolute;
+      top: 50%;
+      left: 0%;
+      transform: translate(-50%, -50%);
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #2A0001;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      z-index: 10;
+    }
+    .album-art {
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    @media (max-width: 768px) {
+      .album-art {
+        width: 200px !important;
+        height: 200px !important;
+      }
+    }
+  </style>
+</head>
 
+<body class="min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
+  <!-- 🌅 HERO SECTION -->
+  <div id="hero" class="max-w-7xl w-full flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-16 bg-white/80 rounded-[2rem] lg:rounded-[3rem] shadow-2xl p-8 lg:p-16 fade-in backdrop-blur-xl border border-[#2A0001]/20">
+    <!-- Left: Info -->
+    <div class="flex-1 text-center lg:text-left space-y-6 lg:space-y-8">
+      <h1 class="text-5xl lg:text-7xl font-extrabold bg-gradient-to-r from-[#2A0001] to-[#5b2527] bg-clip-text text-transparent drop-shadow-md leading-[1.1]">
+        Bhakti Ratna
+      </h1>
+      <p class="text-[#2A0001]/80 text-lg lg:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0">
+        <strong>Bhakti Ratna</strong> — where devotion meets technology.  
+        Listen. Chant. Meditate. Experience soulful music that connects you to the divine.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4 lg:gap-5 justify-center lg:justify-start pt-4 lg:pt-6">
+        <button id="tryNow" class="bg-[#2A0001] hover:bg-[#4a1f21] text-white px-8 lg:px-10 py-3 lg:py-4 text-lg rounded-full font-semibold shadow-lg transition-all flex items-center gap-2 justify-center">
+          <i class="fas fa-headphones"></i> Try Now
+        </button>
+        <a href="https://yourstorelink.com/bhakti-ratna" target="_blank"
+          class="border-2 border-[#2A0001] text-[#2A0001] px-8 lg:px-10 py-3 lg:py-4 text-lg rounded-full font-semibold hover:bg-[#2A0001]/10 transition-all shadow-md flex items-center gap-2 justify-center">
+          <i class="fas fa-shopping-cart"></i> Buy Now
+        </a>
+      </div>
+    </div>
+
+    <!-- Right: Product Image -->
+    <div class="flex-1 flex justify-center relative">
+      <div class="absolute inset-0 blur-3xl bg-[#2A0001]/20 rounded-full animate-pulse"></div>
+      <img src="https://a1mrxe-5t.myshopify.com/cdn/shop/files/Chant_Along.png?v=1759911477&width=700"
+        alt="Bhakti Ratna" class="relative w-64 lg:w-[32rem] rounded-[2rem] lg:rounded-[3rem] shadow-2xl hover:scale-105 transition duration-700 border-4 border-[#2A0001]/30" />
+    </div>
+  </div>
+
+  <!-- 🎵 MUSIC PLAYER SECTION -->
+  <div id="playerSection" class="hidden max-w-6xl w-full bg-[#B2A8A0]/90 backdrop-blur-xl rounded-3xl shadow-2xl p-6 lg:p-10 fade-in border border-[#2A0001]/20 mt-8 lg:mt-10">
+    <div class="flex flex-col lg:flex-row gap-8 lg:gap-10 items-center">
+      
+      <!-- 🎧 Player Left -->
+      <div class="flex-1 text-center bg-white/80 rounded-3xl shadow-lg p-6 lg:p-8 border border-[#2A0001]/20 w-full">
+        <img id="albumArt" src="https://i.ibb.co/sjL6Rsd/bhakti-ratna.jpg" alt="Album Art" class="album-art w-48 h-48 lg:w-64 lg:h-64 mx-auto shadow-xl mb-4 lg:mb-6 border-4 border-[#2A0001]/20" />
+        <h2 id="songTitle" class="text-xl lg:text-2xl font-semibold text-[#2A0001] mb-3">Aaj Khele Shyam Gwalbaal</h2>
+
+        <!-- Controls -->
+        <div class="flex justify-center items-center gap-4 lg:gap-6 mb-4 lg:mb-6">
+          <button id="prevBtn" class="p-3 bg-[#2A0001]/10 hover:bg-[#2A0001]/20 rounded-full shadow-md icon-btn">
+            <i class="fas fa-step-backward text-[#2A0001]"></i>
+          </button>
+          <button id="playPauseBtn" class="p-4 lg:p-5 bg-[#2A0001] text-white text-xl lg:text-2xl rounded-full shadow-lg icon-btn">
+            <i class="fas fa-play"></i>
+          </button>
+          <button id="nextBtn" class="p-3 bg-[#2A0001]/10 hover:bg-[#2A0001]/20 rounded-full shadow-md icon-btn">
+            <i class="fas fa-step-forward text-[#2A0001]"></i>
+          </button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-4 lg:mb-6">
+          <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+            <div class="progress-handle" id="progressHandle"></div>
+          </div>
+          <div class="flex justify-between text-xs text-[#2A0001]/70 mt-3">
+            <span id="currentTime">0:00</span>
+            <span id="duration">0:00</span>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center">
+          <a href="https://yourstorelink.com/bhakti-ratna" target="_blank" class="bg-[#2A0001] text-white px-6 lg:px-8 py-2 lg:py-3 rounded-full font-semibold shadow-md hover:bg-[#4a1f21] transition-all flex items-center gap-2 justify-center">
+            <i class="fas fa-shopping-cart"></i> Buy Now
+          </a>
+          <button id="backBtn" class="border-2 border-[#2A0001] text-[#2A0001] px-6 lg:px-8 py-2 lg:py-3 rounded-full font-semibold hover:bg-[#2A0001]/10 shadow-md transition-all flex items-center gap-2 justify-center">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+        </div>
+      </div>
+
+      <!-- 📜 Lyrics Right -->
+      <div class="flex-1 bg-white/80 p-6 lg:p-8 rounded-3xl shadow-inner border border-[#2A0001]/20 w-full">
+        <h3 class="text-2xl lg:text-3xl font-bold text-[#2A0001] mb-4 flex items-center gap-2">
+          <i class="fas fa-book"></i> Lyrics
+        </h3>
+        <div id="lyrics" class="lyrics-scroll text-[#2A0001]/80 text-base lg:text-lg leading-relaxed italic space-y-3">
+        
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="audio"></audio>
+
+  <script>
+    const hero = document.getElementById('hero');
+    const playerSection = document.getElementById('playerSection');
+    const tryNow = document.getElementById('tryNow');
+    const backBtn = document.getElementById('backBtn');
+
+    const audio = document.getElementById('audio');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressHandle = document.getElementById('progressHandle');
+    const progressContainer = document.getElementById('progressContainer');
+    const currentTimeEl = document.getElementById('currentTime');
+    const durationEl = document.getElementById('duration');
+    const songTitle = document.getElementById('songTitle');
+    const lyricsBox = document.getElementById('lyrics');
+    const albumArt = document.getElementById('albumArt');
+
+    const songs = [
+      {
+        title: "Aaj Khele Shyam Gwalbaal",
+        src: "https://share.chinmayamission.com/let_the_heart_sing/01_Finding_Shri_Rama/01_Ram_ko.mp3",
+        lyrics: `
+          Aaj Khele Shyam Gwalbaal... 🎶<br>
+          Radha sang Nand ke laal...<br>
+          Prem rang mein bheeg rahe sab...<br>
+          Gungunaye sab log Gopal... 🌸<br><br>
+          Gopiyon ke sang khele Shyam...<br>
+          Murli ki dhun pe nachaye dham...<br>
+          Vrindavan ki galiyon mein...<br>
+          Bas wahi hai sabse nyaara... ✨`
+      },
+      {
+        title: "Adidev Mahadev",
+        src: "https://share.chinmayamission.com/let_the_heart_sing/02_Invoking_Bajarangbali_Hanuman_Strength_Incarnate/02_Ojavi_Tejasvi.mp3",
+        lyrics: `
+          Om Namah Shivaya... 🙏<br>
+          Har Har Mahadev...<br>
+          Damaru ke naad mein brahm...<br>
+          Kailash ke dev... 🔱<br><br>
+          Tandav nritya karne wale...<br>
+          Bhole Nath sab ke palne wale...<br>
+          Bhasm mein rahne wale...<br>
+          Mahadev sab ke man base... 🌙`
+      },
+      {
+        title: "Ram Naam Kirtan",
+        src: "https://share.chinmayamission.com/let_the_heart_sing/03_Invoking_Bhakta_Hanuman_Loyal_Devotee/03_Jaham_jaham.mp3",
+        lyrics: `
+          Ram Ram Ram Ram... 🌺<br>
+          Bhajo Ram Naam Satya Hai...<br>
+          Bhakti mein le doob jaa...<br>
+          Shri Ram tere naam mein mukti hai... ✨<br><br>
+          Ayodhya ke raja Ram...<br>
+          Sita ke pyare Ram...<br>
+          Lakshman ke bhaiya Ram...<br>
+          Hanuman ke prabhu Ram... 🏹`
+      }
+    ];
+
+    let currentSong = 0;
+    let isPlaying = false;
+    let isLoaded = false;
+    let isDragging = false;
+
+    tryNow.addEventListener('click', () => {
+      hero.classList.add('fade-out');
+      setTimeout(() => {
+        hero.classList.add('hidden');
+        playerSection.classList.remove('hidden');
+        playerSection.classList.add('fade-in');
+      }, 500);
+    });
+
+    backBtn.addEventListener('click', () => {
+      playerSection.classList.add('fade-out');
+      setTimeout(() => {
+        playerSection.classList.add('hidden');
+        hero.classList.remove('hidden');
+        hero.classList.add('fade-in');
+      }, 500);
+      pauseSong();
+    });
+
+    function loadSong(index) {
+      const song = songs[index];
+      songTitle.textContent = song.title;
+      lyricsBox.innerHTML = song.lyrics;
+      audio.src = song.src;
+      progressBar.style.width = '0%';
+      progressHandle.style.left = '0%';
+      currentTimeEl.textContent = "0:00";
+      durationEl.textContent = "0:00";
+      isLoaded = false;
+      
+      // Reset the play button
+      playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+      albumArt.classList.remove("spin");
+      
+      // Load metadata to get duration
+      audio.addEventListener('loadedmetadata', function() {
+        durationEl.textContent = formatTime(audio.duration);
+        isLoaded = true;
+      });
+      
+      // If metadata doesn't load, try to get duration after a delay
+      setTimeout(() => {
+        if (!isLoaded && audio.duration) {
+          durationEl.textContent = formatTime(audio.duration);
+          isLoaded = true;
+        }
+      }, 1000);
+    }
+
+    function playSong() {
+      if (!isLoaded) {
+        // If not loaded, wait for metadata
+        audio.addEventListener('loadedmetadata', function() {
+          durationEl.textContent = formatTime(audio.duration);
+          isLoaded = true;
+          audio.play();
+          isPlaying = true;
+          playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+          albumArt.classList.add("spin");
+        }, { once: true });
+      } else {
+        audio.play();
+        isPlaying = true;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        albumArt.classList.add("spin");
+      }
+    }
+
+    function pauseSong() {
+      audio.pause();
+      isPlaying = false;
+      playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+      albumArt.classList.remove("spin");
+    }
+
+    playPauseBtn.addEventListener("click", () => {
+      if (isPlaying) {
+        pauseSong();
+      } else {
+        playSong();
+      }
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      currentSong = (currentSong + 1) % songs.length;
+      loadSong(currentSong);
+      if (isPlaying) {
+        // Small delay to ensure the song is loaded before playing
+        setTimeout(playSong, 100);
+      }
+    });
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      currentSong = (currentSong - 1 + songs.length) % songs.length;
+      loadSong(currentSong);
+      if (isPlaying) {
+        // Small delay to ensure the song is loaded before playing
+        setTimeout(playSong, 100);
+      }
+    });
+
+    audio.addEventListener("timeupdate", () => {
+      if (audio.duration && !isDragging) {
+        const progressPercent = (audio.currentTime / audio.duration) * 100;
+        progressBar.style.width = `${progressPercent}%`;
+        progressHandle.style.left = `${progressPercent}%`;
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+        
+        // Update duration if it's not set correctly
+        if (!isLoaded && audio.duration) {
+          durationEl.textContent = formatTime(audio.duration);
+          isLoaded = true;
+        }
+      }
+    });
+
+    // Progress bar dragging functionality
+    progressContainer.addEventListener('mousedown', startDrag);
+    progressContainer.addEventListener('touchstart', startDrag);
+    
+    function startDrag(e) {
+      isDragging = true;
+      updateProgress(e);
+      
+      document.addEventListener('mousemove', updateProgress);
+      document.addEventListener('touchmove', updateProgress);
+      document.addEventListener('mouseup', stopDrag);
+      document.addEventListener('touchend', stopDrag);
+    }
+    
+    function updateProgress(e) {
+      if (!isDragging) return;
+      
+      const rect = progressContainer.getBoundingClientRect();
+      const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+      let percent = (clientX - rect.left) / rect.width;
+      percent = Math.max(0, Math.min(1, percent));
+      
+      progressBar.style.width = `${percent * 100}%`;
+      progressHandle.style.left = `${percent * 100}%`;
+      
+      if (audio.duration) {
+        audio.currentTime = percent * audio.duration;
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+      }
+    }
+    
+    function stopDrag() {
+      isDragging = false;
+      document.removeEventListener('mousemove', updateProgress);
+      document.removeEventListener('touchmove', updateProgress);
+      document.removeEventListener('mouseup', stopDrag);
+      document.removeEventListener('touchend', stopDrag);
+    }
+
+    // Additional event to catch when duration becomes available
+    audio.addEventListener("durationchange", () => {
+      if (audio.duration && audio.duration !== Infinity) {
+        durationEl.textContent = formatTime(audio.duration);
+        isLoaded = true;
+      }
+    });
+
+    function formatTime(time) {
+      if (isNaN(time) || time === Infinity) return "0:00";
+      
+      const minutes = Math.floor(time / 60);
+      const seconds = Math.floor(time % 60);
+      return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+    }
+
+    // Initialize with first song
+    loadSong(currentSong);
+  </script>
+</body>
+</html>
