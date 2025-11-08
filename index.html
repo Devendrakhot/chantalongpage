@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -15,6 +16,10 @@
       background: linear-gradient(135deg, #f5f0e8 0%, #e8ddd0 100%);
       min-height: 100vh;
     }
+    h1,h2,h3,h4,h5,button{
+        font-family:Philosopher ;
+    }
+    
     .fade-out { opacity: 0; transform: scale(0.95); transition: all 0.7s ease; }
     .fade-in { opacity: 1; transform: scale(1); transition: all 0.7s ease; }
     .spin { animation: spin 8s linear infinite; }
@@ -165,12 +170,12 @@
   <div id="hero" class="max-w-7xl w-full flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-16 bg-white/80 rounded-[2rem] lg:rounded-[3rem] shadow-2xl p-6 lg:p-16 fade-in backdrop-blur-xl border border-[#2A0001]/20">
     <!-- Left: Info -->
     <div class="flex-1 text-center lg:text-left space-y-6 lg:space-y-8">
-      <h1 class="text-4xl lg:text-7xl font-extrabold bg-gradient-to-r from-[#2A0001] to-[#5b2527] bg-clip-text text-transparent drop-shadow-md leading-[1.1]">
-        Bhakti Ratna
+      <h1 class="text-4xl lg:text-7xl font-Philosopher bg-gradient-to-r from-[#2A0001] to-[#5b2527] bg-clip-text text-transparent drop-shadow-md leading-[1.1]">
+        Bhakti Ratnakar
+
       </h1>
       <p class="text-[#2A0001]/80 text-base lg:text-xl leading-relaxed max-w-xl mx-auto lg:mx-0">
-        <strong>Bhakti Ratna</strong> — where devotion meets technology.  
-        Listen. Chant. Meditate. Experience soulful music that connects you to the divine.
+        Where devotion meets technology—listen, chant, and meditate. Experience soulful music and sacred chants that connect you to the divine.
       </p>
 
       <div class="hero-buttons flex flex-col sm:flex-row gap-4 lg:gap-5 justify-center lg:justify-start pt-4 lg:pt-6">
@@ -239,13 +244,20 @@
 
       <!-- 📜 Lyrics Right -->
       <div class="flex-1 bg-white/80 p-4 lg:p-8 rounded-3xl shadow-inner border border-[#2A0001]/20 w-full">
-        <h3 class="text-xl lg:text-3xl font-bold text-[#2A0001] mb-4 flex items-center gap-2 justify-center lg:justify-start">
-          <i class="fas fa-book"></i> Lyrics
-        </h3>
-        <div id="lyrics" class="lyrics-scroll text-[#2A0001]/80 text-sm lg:text-lg leading-relaxed italic space-y-3">
-        
-        </div>
-      </div>
+        <h3 class="text-xl lg:text-3xl font-bold text-[#2A0001] mb-4 flex items-center gap-2">
+            <i class="fas fa-book"></i> Lyrics
+          </h3>
+          
+          <div id="lyrics" class="lyrics-scroll text-[#2A0001]/80 text-sm lg:text-lg leading-relaxed italic">
+            <div id="lyricsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- English Lyrics -->
+              <div id="lyrics_en" class="text-left"></div>
+          
+              <!-- Sanskrit Lyrics -->
+              <div id="lyrics_sa" class="text-left border-l border-[#2A0001]/20 pl-4"></div>
+            </div>
+          </div>
+          
     </div>
   </div>
 
@@ -267,50 +279,103 @@
     const songTitle = document.getElementById('songTitle');
     const lyricsBox = document.getElementById('lyrics');
     const albumArt = document.getElementById('albumArt');
+    const lyricsEn = document.getElementById('lyrics_en');
+const lyricsSa = document.getElementById('lyrics_sa');
 
-    const songs = [
-      {
-        title: "Aaj Khele Shyam Gwalbaal",
-        src: "https://share.chinmayamission.com/let_the_heart_sing/01_Finding_Shri_Rama/01_Ram_ko.mp3",
-        lyrics: `
-          Aaj Khele Shyam Gwalbaal... 🎶<br>
-          Radha sang Nand ke laal...<br>
-          Prem rang mein bheeg rahe sab...<br>
-          Gungunaye sab log Gopal... 🌸<br><br>
-          Gopiyon ke sang khele Shyam...<br>
-          Murli ki dhun pe nachaye dham...<br>
-          Vrindavan ki galiyon mein...<br>
-          Bas wahi hai sabse nyaara... ✨`
-      },
-      {
-        title: "Adidev Mahadev",
-        src: "https://share.chinmayamission.com/let_the_heart_sing/02_Invoking_Bajarangbali_Hanuman_Strength_Incarnate/02_Ojavi_Tejasvi.mp3",
-        lyrics: `
-          Om Namah Shivaya... 🙏<br>
-          Har Har Mahadev...<br>
-          Damaru ke naad mein brahm...<br>
-          Kailash ke dev... 🔱<br><br>
-          Tandav nritya karne wale...<br>
-          Bhole Nath sab ke palne wale...<br>
-          Bhasm mein rahne wale...<br>
-          Mahadev sab ke man base... 🌙`
-      },
-      {
-        title: "Ram Naam Kirtan",
-        src: "https://share.chinmayamission.com/let_the_heart_sing/03_Invoking_Bhakta_Hanuman_Loyal_Devotee/03_Jaham_jaham.mp3",
-        lyrics: `
-          Ram Ram Ram Ram... 🌺<br>
-          Bhajo Ram Naam Satya Hai...<br>
-          Bhakti mein le doob jaa...<br>
-          Shri Ram tere naam mein mukti hai... ✨<br><br>
-          Ayodhya ke raja Ram...<br>
-          Sita ke pyare Ram...<br>
-          Lakshman ke bhaiya Ram...<br>
-          Hanuman ke prabhu Ram... 🏹`
-      }
-    ];
+const songs = [
+  {
+    title: "Jai Ganesh Ganpati Sukhkarta",
+    src: "https://cdn.shopify.com/s/files/1/0766/7440/0279/files/004_Gurudev_Tav_Mahaniy_Kripa.mp3?v=1760445558 ",
+    lyrics_en: `
+   jaya gaṇeśa gaṇapati sukhakartā<br>
+praṇasvarūpa sakaladukhahartā||1||<br>
+vidhyāvāridhi buddhividhātā|<br>
+bhukti mukti mudamaṁgaladātā||2||<br>
+saguṇarupa tuma triguṇātītā<br>
+jagakāraṇa tuma jagata atītā||3||
 
-    let currentSong = 0;
+    `,
+    lyrics_sa: `
+      जय गणेश गणपति सुखकर्ता<br>
+प्रणस्वरूप सकलदुखहर्ता॥१॥<br>
+विध्यावारिधि बुद्धिविधाता।<br>
+भुक्‍ति मुक्‍ति मुदमंगलदाता॥२॥<br>
+सगुणरुप तुम त्रिगुणातीता<br>
+जगकारण तुम जगत अतीता॥३॥
+    `
+  },
+  {
+    title: "Gurudev Tav Mahaniy Kripa",
+    src: "https://cdn.shopify.com/s/files/1/0766/7440/0279/files/004_Gurudev_Tav_Mahaniy_Kripa.mp3?v=1760445558",
+    lyrics_en: `
+  gurudeva tava mahanīya kṛupā<br>
+mere jīvana kā avalambana hai<br>
+basa eka yahī merā bala hai ||1||<br>
+ajñāna bhare saṁśaya se bhare<br>
+viparīta vicāroṁ se bhī bhare <br>
+mana ke andhakāra ko dūra kare<br>
+vacanāmṛuta se tava bodhakṛupā ||2||
+pala pala paga-paga jīvana patha para<br>
+guru sātha mere rakṣaka banakara<br>
+bisarū na kabhī yaha premamayī<br>
+ānandamayī bhavadīya kṛupā  ||3||<br>
+
+
+    `,
+    lyrics_sa: `
+     गुरुदेव तव महनीय कृपा<br>
+मेरे जीवन का अवलम्बन है<br>
+बस एक यही मेरा बल है ॥१॥<br>
+अज्ञान भरे संशय से भरे<br>
+विपरीत विचारों से भी भरे ।<br>
+मन के अन्धकार को दूर करे<br>
+वचनामृत से तव बोधकृपा ॥२॥<br>
+पल पल पग-पग जीवन पथ पर<br>
+गुरु साथ मेरे रक्षक बनकर ।<br>
+बिसरूँ न कभी यह प्रेममयी<br>
+आनन्दमयी भवदीय कृपा ॥३॥
+
+    `
+  }
+  ,
+  {
+    title: "Tvam Hi No Neta",
+    src: "https://cdn.shopify.com/s/files/1/0766/7440/0279/files/002_Jai_Ganesh_Ganpati_Sukhkarta.mp3?v=1760445557",
+    lyrics_en: `
+tvaṁ hi no netā tvaṁ hi no dātā |<br>
+yatra tvaṁ nayasi tatra gacchāmaḥ ||1||<br>
+kāpi no cintā kvāpi no bhayam |<br>
+yadāśraye tava vartāmahe sadā ||2||<br>
+rakṣakastvaṁ hi saṁkaṭe kvāpi |<br>
+śikṣakastvaṁ hi śobhane pathi  ||3||<br>
+dehi naḥ śaktiṁ buddhiṁ tathā bhaktim |<br>
+darśite mārge calanāya nityaṁ  hi ||4||<br>
+yadi vismarāmastvāṁ tvaṁ na vismara naḥ |<br>
+bālakāstava he karuṇākara prabho ||5||<br>
+he prabho ! he vibho !! he guro !!!
+
+
+
+
+
+    `,
+    lyrics_sa: `
+      त्वं हि नो नेता त्वं हि नो दाता।<br>
+यत्र त्वं नयसि तत्र गच्छामः ॥१॥<br>
+कापि नो चिन्ता क्वापि नो भयम् । <br>
+यदाश्रये तव वर्तामहे सदा ॥२॥<br>
+रक्षकस्त्वं हि संकटे क्वापि ।<br>
+शिक्षकस्त्वं हि शोभने पथि ॥३॥<br>
+देहि नः शक्तिं बुद्धिं तथा भक्तिम् ।<br>
+दर्शिते मार्गे चलनाय नित्यं  हि ॥४॥<br>
+यदि विस्मरामस्त्वां त्वं न विस्मर नः ।<br>
+बालकास्तव हे करुणाकर प्रभो ॥५॥<br>
+हे प्रभो ! हे विभो !! हे गुरो !!!
+
+    `
+  }
+];
+  let currentSong = 0;
     let isPlaying = false;
     let isLoaded = false;
     let isDragging = false;
@@ -337,7 +402,9 @@
     function loadSong(index) {
       const song = songs[index];
       songTitle.textContent = song.title;
-      lyricsBox.innerHTML = song.lyrics;
+      lyricsEn.innerHTML = song.lyrics_en;
+lyricsSa.innerHTML = song.lyrics_sa;
+
       audio.src = song.src;
       progressBar.style.width = '0%';
       progressHandle.style.left = '0%';
@@ -491,3 +558,5 @@
   </script>
 </body>
 </html>
+
+
